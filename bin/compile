@@ -85,6 +85,36 @@ else
   unset MAVEN_SETTINGS_OPT
 fi
 
+########## NODE.JS STUFF ##########
+
+# Look in package.json's engines.node field for a semver range
+semver_range=$(cat $BUILD_DIR/package.json | $BIN_DIR/../vendor/jq -r .engines.node)
+
+# Resolve node version using semver.io
+node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
+
+# Download node from Heroku's S3 mirror of nodejs.org/dist
+echo -n "-----> Downloading and installing node v$node_version..."
+node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
+curl $node_url -s -o - | tar xzf - -C $BUILD_DIR
+echo " done"
+
+# Move node (and npm) into ./vendor and make them executable
+mkdir -p $BUILD_DIR/vendor
+mv $BUILD_DIR/node-v$node_version-linux-x64 $BUILD_DIR/vendor/node
+chmod +x $BUILD_DIR/vendor/node/bin/*
+PATH=$PATH:$BUILD_DIR/vendor/node/bin
+
+# Run subsequent node/npm commands from the build path
+cd $BUILD_DIR
+
+if [ -f "$BUILD_DIR/package.json" ]; then
+  echo "-----> Running npm install..."
+  npm install --userconfig $BUILD_DIR/.npmrc 2>&1 | sed -u 's/^/      /'
+fi
+
+########## NODE.JS STUFF ENDS ##########
+
 # change to build dir to run maven
 cd $BUILD_DIR
 
