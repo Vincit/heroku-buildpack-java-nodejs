@@ -108,10 +108,45 @@ PATH=$PATH:$BUILD_DIR/vendor/node/bin
 # Run subsequent node/npm commands from the build path
 cd $BUILD_DIR
 
+# If node_modules directory is checked into source control then
+# rebuild any native deps. Otherwise, restore from the build cache.
+if test -d $BUILD_DIR/node_modules; then
+  echo "-----> Found existing node_modules directory; skipping cache"
+  echo "-----> Rebuilding any native dependencies"
+  npm rebuild 2>&1 | sed -u 's/^/      /'
+elif test -d $CACHE_DIR/node_modules; then
+  echo "-----> Restoring node_modules directory from cache"
+  cp -r $CACHE_DIR/node_modules $BUILD_DIR/
+
+  echo "-----> Pruning cached dependencies not specified in package.json"
+  npm prune 2>&1 | sed -u 's/^/      /'
+fi
+
+if test -d $CACHE_DIR/.cache/bower; then
+  echo "-----> Restoring bower cache directory from cache"
+  mkdir -p /.cache
+  cp -r $CACHE_DIR/.cache/bower /.cache/
+fi
+
 if [ -f "$BUILD_DIR/package.json" ]; then
   echo "-----> Running npm install..."
   npm install --userconfig $BUILD_DIR/.npmrc 2>&1 | sed -u 's/^/      /'
 fi
+
+echo "-----> Caching node_modules directory for future builds"
+rm -rf $CACHE_DIR/node_modules
+mkdir -p $CACHE_DIR
+test -d $BUILD_DIR/node_modules && cp -r $BUILD_DIR/node_modules $CACHE_DIR/
+
+echo "-----> Caching bower cache directory for future builds"
+rm -rf $CACHE_DIR/.cache/bower
+mkdir -p $CACHE_DIR/.cache
+test -d /.cache/bower && cp -r /.cache/bower $CACHE_DIR/.cache/
+
+echo "-----> Cleaning up node-gyp and npm artifacts"
+rm -rf "$BUILD_DIR/.node-gyp"
+rm -rf "$BUILD_DIR/.npm"
+rm -rf "/.cache/bower"
 
 ########## NODE.JS STUFF ENDS ##########
 
