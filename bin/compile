@@ -85,6 +85,15 @@ if [ "${PIPESTATUS[*]}" != "0 0" ]; then
   error "Failed to build app with Maven"
 fi
 
+# download webapp-runner
+git clone https://github.com/Vincit/webapp-runner.git 2>&1 | sed -u 's/^/        /'
+cd webapp-runner
+$CACHE_DIR/.maven/bin/mvn -B -Duser.home=$BUILD_DIR/webapp-runner -Dmaven.repo.local=$CACHE_DIR/.m2/repository -s $CACHE_DIR/.m2/settings.xml -DskipTests=true -f ./pom.xml package 2>&1 | sed -u 's/^/        /'
+mkdir -p ../target/dependency
+cp target/webapp-runner.jar ../target/dependency/webapp-runner.jar
+cd ..
+rm -rf webapp-runner
+
 # finalize cache
 if [ "false" == $KEEP_M2_CACHE ]; then
   touch $CACHE_DIR/removeM2Cache
