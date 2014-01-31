@@ -13,6 +13,7 @@ BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
+GLOBAL_CACHE_DIR=/global_cache
 
 LOGGER_FLAGS=""
 
@@ -48,6 +49,17 @@ status_done
 
 # change to cache dir to install maven
 cd $CACHE_DIR
+
+# symlink from global cache directory
+if [ -d $GLOBAL_CACHE_DIR ]; then
+  echo "-----> Symlinking global Maven cache"
+  for DIR in ".m2" ".maven"; do
+    rm -rf $CACHE_DIR/$DIR
+    mkdir -p $GLOBAL_CACHE_DIR/$DIR
+    ln -s $GLOBAL_CACHE_DIR/$DIR $CACHE_DIR/$DIR
+  done
+fi
+
 install_maven ${CACHE_DIR} ${BUILD_DIR}
 
 if [ -n "$MAVEN_SETTINGS_PATH" ]; then
