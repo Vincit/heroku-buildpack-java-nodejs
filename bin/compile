@@ -112,8 +112,15 @@ fi
 NPM_DIR="" # can be overridden in .env to specify where package.json/node_modules are
 test -f $BUILD_DIR/.env && source $BUILD_DIR/.env
 
-# Look in package.json's engines.node field for a semver range
-semver_range=$(cat $BUILD_DIR/$NPM_DIR/package.json | $BIN_DIR/../vendor/jq -r .engines.node)
+if [ ! -f $BUILD_DIR/$NPM_DIR/package.json ]; then
+  echo 'PRO TIP: If you have a package.json in your project, you can define its location in .env file. Just add the line:'
+  echo 'export NPM_DIR=subdir'
+  echo 'where subdir is a relative path to the directory where package.json is.'
+  semver_range=""
+else
+  # Look in package.json's engines.node field for a semver range
+  semver_range=$(cat $BUILD_DIR/$NPM_DIR/package.json | $BIN_DIR/../vendor/jq -r .engines.node)
+fi
 
 # Resolve node version using semver.io
 node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
