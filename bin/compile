@@ -156,7 +156,7 @@ fi
 
 if [ -f "$BUILD_DIR/$NPM_DIR/package.json" ]; then
   echo "-----> Running npm install..."
-  npm install --userconfig $BUILD_DIR/$NPM_DIR/.npmrc 2>&1 | sed -u 's/^/      /'
+  npm install --production --userconfig $BUILD_DIR/$NPM_DIR/.npmrc 2>&1 | sed -u 's/^/      /'
 fi
 
 ########## NODE.JS STUFF ENDS ##########
