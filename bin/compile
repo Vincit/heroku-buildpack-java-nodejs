@@ -79,11 +79,11 @@ else
   fi
 fi
 
-if test -d $CACHE_DIR/.cache/bower; then
-  echo "-----> Restoring bower cache directory from cache"
-  mkdir -p /.cache
-  cp -r $CACHE_DIR/.cache/bower /.cache/bower
-fi
+#if test -d $CACHE_DIR/.cache/bower; then
+#  echo "-----> Restoring bower cache directory from cache"
+#  mkdir -p /.cache
+#  cp -r $CACHE_DIR/.cache/bower /.cache/bower
+#fi
 
 install_maven ${CACHE_DIR} ${BUILD_DIR}
 
@@ -213,10 +213,10 @@ rm -rf $CACHE_DIR/node_modules
 mkdir -p $CACHE_DIR
 test -d $BUILD_DIR/$NPM_DIR/node_modules && cp -r $BUILD_DIR/$NPM_DIR/node_modules $CACHE_DIR/
 
-echo "-----> Caching bower cache directory for future builds"
-rm -rf $CACHE_DIR/.cache/bower
-mkdir -p $CACHE_DIR/.cache
-test -d /.cache/bower && cp -r /.cache/bower $CACHE_DIR/.cache/
+#echo "-----> Caching bower cache directory for future builds"
+#rm -rf $CACHE_DIR/.cache/bower
+#mkdir -p $CACHE_DIR/.cache
+#test -d /.cache/bower && cp -r /.cache/bower $CACHE_DIR/.cache/
 
 if [ ! -d $GLOBAL_CACHE_DIR ]; then
   echo "-----> Caching npm cache directory for future builds"
