@@ -1,8 +1,10 @@
-Heroku buildpack: Java [![Build Status](https://travis-ci.org/heroku/heroku-buildpack-java.svg)](https://travis-ci.org/heroku/heroku-buildpack-java)
+Heroku buildpack: Java
 =========================
 
 This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpack) for Java apps.
 It uses Maven 3.2.5 to build your application and OpenJDK 8u20 to run it (by default).
+
+This fork also installs webapp-runner to run the .war without requiring a bundled tomcat in Dokku.
 
 ## How it works
 
