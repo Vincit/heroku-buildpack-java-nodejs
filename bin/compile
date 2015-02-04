@@ -113,7 +113,19 @@ if [ "${PIPESTATUS[*]}" != "0 0" ]; then
 fi
 
 # download webapp-runner
-git clone https://github.com/Vincit/webapp-runner.git 2>&1 | sed -u 's/^/        /'
+if [ -d $GLOBAL_CACHE_DIR/webapp-runner ]; then
+    cd $GLOBAL_CACHE_DIR/webapp-runner
+    git pull --ff-only 2>&1 >/dev/null
+    cd $BUILD_DIR
+    cp -r $GLOBAL_CACHE_DIR/webapp-runner .
+else
+    git clone https://github.com/Vincit/webapp-runner.git 2>&1 | sed -u 's/^/        /'
+
+    if [ -d $GLOBAL_CACHE_DIR ]; then
+        cp -r webapp-runner $GLOBAL_CACHE_DIR
+    fi
+fi
+
 cd webapp-runner
 $CACHE_DIR/.maven/bin/mvn -B -Duser.home=$BUILD_DIR/webapp-runner -Dmaven.repo.local=$CACHE_DIR/.m2/repository -s $CACHE_DIR/.m2/settings.xml -DskipTests=true -f ./pom.xml package 2>&1 | sed -u 's/^/        /'
 mkdir -p ../target/dependency
