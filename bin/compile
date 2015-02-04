@@ -40,12 +40,21 @@ fi
 #create the cache dir if it doesn't exist
 mkdir -p $CACHE_DIR
 
+#copy the jdk from cache
+if [ -d "$CACHE_DIR/.jdk" ]; then
+    cp -r $CACHE_DIR/.jdk $BUILD_DIR/.jdk
+fi
+
 # install JDK
 javaVersion=$(detect_java_version ${BUILD_DIR})
 status_pending "Installing OpenJDK ${javaVersion}"
 install_java ${BUILD_DIR} ${javaVersion}
 jdk_overlay ${BUILD_DIR}
 status_done
+
+#copy the jdk to cache
+rm -rf $CACHE_DIR/.jdk
+cp -r $BUILD_DIR/.jdk $CACHE_DIR/.jdk
 
 # change to cache dir to install maven
 cd $CACHE_DIR
