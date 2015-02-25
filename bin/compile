@@ -197,7 +197,19 @@ else
 fi
 
 cd webapp-runner
-$CACHE_DIR/.maven/bin/mvn -B -Duser.home=$BUILD_DIR/webapp-runner -Dmaven.repo.local=$CACHE_DIR/.m2/repository -s $CACHE_DIR/.m2/settings.xml -DskipTests=true -f ./pom.xml package 2>&1 | sed -u 's/^/        /'
+
+BUILDCMD="$CACHE_DIR/.maven/bin/mvn -B"
+BUILDCMD="$BUILDCMD -Duser.home=$BUILD_DIR/webapp-runner"
+BUILDCMD="$BUILDCMD -Dmaven.repo.local=$CACHE_DIR/.m2/repository"
+BUILDCMD="$BUILDCMD $MAVEN_SETTINGS_OPT"
+BUILDCMD="$BUILDCMD -DskipTests=true"
+BUILDCMD="$BUILDCMD -f ./pom.xml"
+BUILDCMD="$BUILDCMD package"
+
+status "executing $BUILDCMD"
+
+$BUILDCMD 2>&1 | sed -u 's/^/       /'
+
 mkdir -p ../target/dependency
 cp target/webapp-runner.jar ../target/dependency/webapp-runner.jar
 cd ..
