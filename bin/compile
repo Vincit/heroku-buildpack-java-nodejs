@@ -121,10 +121,21 @@ if [ -d $GLOBAL_CACHE_DIR ]; then
   mkdir -p $GLOBAL_CACHE_DIR/.npm
   rm -rf $BUILD_DIR/.npm
   ln -s $GLOBAL_CACHE_DIR/.npm $BUILD_DIR/.npm
+
+  mkdir -p $GLOBAL_CACHE_DIR/.cache/bower
+  mkdir -p $HOME/.cache
+  rm -rf $HOME/.cache/bower
+  ln -s $GLOBAL_CACHE_DIR/.cache/bower $HOME/.cache/bower
 else
   if test -d $CACHE_DIR/.npm; then
     echo "-----> Restoring npm cache directory from cache"
     cp -r $CACHE_DIR/.npm $BUILD_DIR/.npm
+  fi
+
+  if test -d $CACHE_DIR/.cache/bower; then
+    echo "-----> Restoring bower cache directory from cache"
+    mkdir -p $HOME/.cache
+    cp -r $CACHE_DIR/.cache/bower $HOME/.cache/bower
   fi
 fi
 
@@ -222,21 +233,21 @@ rm -rf $CACHE_DIR/node_modules
 mkdir -p $CACHE_DIR
 test -d $BUILD_DIR/$NPM_DIR/node_modules && cp -r $BUILD_DIR/$NPM_DIR/node_modules $CACHE_DIR/
 
-#echo "-----> Caching bower cache directory for future builds"
-#rm -rf $CACHE_DIR/.cache/bower
-#mkdir -p $CACHE_DIR/.cache
-#test -d /.cache/bower && cp -r /.cache/bower $CACHE_DIR/.cache/
-
 if [ ! -d $GLOBAL_CACHE_DIR ]; then
   echo "-----> Caching npm cache directory for future builds"
   rm -rf $CACHE_DIR/.npm
   mkdir -p $CACHE_DIR/.npm
   test -d $BUILD_DIR/.npm && cp -r $BUILD_DIR/.npm $CACHE_DIR/.npm
+
+  echo "-----> Caching bower cache directory for future builds"
+  rm -rf $CACHE_DIR/.cache/bower
+  mkdir -p $CACHE_DIR/.cache
+  test -d $HOME/.cache/bower && cp -r $HOME/.cache/bower $CACHE_DIR/.cache/
 fi
 
 echo "-----> Cleaning up cache directories"
 rm -rf "$BUILD_DIR/.node-gyp"
 rm -rf "$BUILD_DIR/.npm"
-rm -rf "/.cache/bower"
+rm -rf "$HOME/.cache/bower"
 
 logger -p user.notice -t "slugc[$$]" "language_pack_java java_compile_end $LOGGER_FLAGS"
