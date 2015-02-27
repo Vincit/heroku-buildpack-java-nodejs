@@ -59,32 +59,6 @@ cp -r $BUILD_DIR/.jdk $CACHE_DIR/.jdk
 # change to cache dir to install maven
 cd $CACHE_DIR
 
-# symlink from global cache directory
-if [ -d $GLOBAL_CACHE_DIR ]; then
-  echo "-----> Symlinking global Maven cache"
-  for DIR in ".m2" ".maven"; do
-    rm -rf $CACHE_DIR/$DIR
-    mkdir -p $GLOBAL_CACHE_DIR/$DIR
-    ln -s $GLOBAL_CACHE_DIR/$DIR $CACHE_DIR/$DIR
-  done
-
-  echo "-----> Symlinking global npm cache"
-  mkdir -p $GLOBAL_CACHE_DIR/.npm
-  rm -rf $BUILD_DIR/.npm
-  ln -s $GLOBAL_CACHE_DIR/.npm $BUILD_DIR/.npm
-else
-  if test -d $CACHE_DIR/.npm; then
-    echo "-----> Restoring npm cache directory from cache"
-    cp -r $CACHE_DIR/.npm $BUILD_DIR/.npm
-  fi
-fi
-
-#if test -d $CACHE_DIR/.cache/bower; then
-#  echo "-----> Restoring bower cache directory from cache"
-#  mkdir -p /.cache
-#  cp -r $CACHE_DIR/.cache/bower /.cache/bower
-#fi
-
 install_maven ${CACHE_DIR} ${BUILD_DIR}
 
 if [ -n "$MAVEN_SETTINGS_PATH" ]; then
@@ -99,6 +73,16 @@ elif [ -f $BUILD_DIR/settings.xml ]; then
   MAVEN_SETTINGS_OPT="-s $BUILD_DIR/settings.xml"
 else
   unset MAVEN_SETTINGS_OPT
+fi
+
+# symlink from global cache directory
+if [ -d $GLOBAL_CACHE_DIR ]; then
+  echo "-----> Symlinking global Maven cache"
+  for DIR in ".m2" ".maven"; do
+    rm -rf $CACHE_DIR/$DIR
+    mkdir -p $GLOBAL_CACHE_DIR/$DIR
+    ln -s $GLOBAL_CACHE_DIR/$DIR $CACHE_DIR/$DIR
+  done
 fi
 
 ########## NODE.JS STUFF ##########
@@ -130,6 +114,19 @@ mkdir -p $BUILD_DIR/vendor
 mv $BUILD_DIR/node-v$node_version-linux-x64 $BUILD_DIR/vendor/node
 chmod +x $BUILD_DIR/vendor/node/bin/*
 PATH=$PATH:$BUILD_DIR/vendor/node/bin
+
+# symlink from global cache directory
+if [ -d $GLOBAL_CACHE_DIR ]; then
+  echo "-----> Symlinking global npm cache"
+  mkdir -p $GLOBAL_CACHE_DIR/.npm
+  rm -rf $BUILD_DIR/.npm
+  ln -s $GLOBAL_CACHE_DIR/.npm $BUILD_DIR/.npm
+else
+  if test -d $CACHE_DIR/.npm; then
+    echo "-----> Restoring npm cache directory from cache"
+    cp -r $CACHE_DIR/.npm $BUILD_DIR/.npm
+  fi
+fi
 
 # Run subsequent node/npm commands from the build path
 cd $BUILD_DIR/$NPM_DIR
