@@ -78,11 +78,9 @@ fi
 # symlink from global cache directory
 if [ -d $GLOBAL_CACHE_DIR ]; then
   echo "-----> Symlinking global Maven cache"
-  for DIR in ".m2" ".maven"; do
-    rm -rf $CACHE_DIR/$DIR
-    mkdir -p $GLOBAL_CACHE_DIR/$DIR
-    ln -s $GLOBAL_CACHE_DIR/$DIR $CACHE_DIR/$DIR
-  done
+  rm -rf $CACHE_DIR/.m2
+  mkdir -p $GLOBAL_CACHE_DIR/.m2
+  ln -s $GLOBAL_CACHE_DIR/.m2 $CACHE_DIR/.m2
 fi
 
 ########## NODE.JS STUFF ##########
