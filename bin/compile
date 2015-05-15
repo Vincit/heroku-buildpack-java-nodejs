@@ -215,6 +215,7 @@ cd webapp-runner
 BUILDCMD="$CACHE_DIR/.maven/bin/mvn -B"
 BUILDCMD="$BUILDCMD -Duser.home=$BUILD_DIR/webapp-runner"
 BUILDCMD="$BUILDCMD -Dmaven.repo.local=$CACHE_DIR/.m2/repository"
+BUILDCMD="$BUILDCMD -q"
 BUILDCMD="$BUILDCMD $MAVEN_SETTINGS_OPT"
 BUILDCMD="$BUILDCMD -DskipTests=true"
 BUILDCMD="$BUILDCMD -f ./pom.xml"
