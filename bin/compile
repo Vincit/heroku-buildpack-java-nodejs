@@ -42,7 +42,8 @@ mkdir -p $CACHE_DIR
 
 #copy the jdk from cache
 if [ -d "$CACHE_DIR/.jdk" ]; then
-    cp -r $CACHE_DIR/.jdk $BUILD_DIR/.jdk
+  echo "-----> Restoring cached JDK"
+  cp -r $CACHE_DIR/.jdk $BUILD_DIR/.jdk
 fi
 
 # install JDK
@@ -53,6 +54,7 @@ jdk_overlay ${BUILD_DIR}
 status_done
 
 #copy the jdk to cache
+echo "-----> Caching JDK for future use"
 rsync -a $BUILD_DIR/.jdk $CACHE_DIR/
 
 # change to cache dir to install maven
