@@ -95,10 +95,28 @@ if [ ! -f $BUILD_DIR/$NPM_DIR/package.json ]; then
 else
   # Look in package.json's engines.node field for a semver range
   semver_range=$(cat $BUILD_DIR/$NPM_DIR/package.json | $BIN_DIR/../vendor/jq -r .engines.node)
+
+  # Recommend using semver ranges in a safe manner
+  if [ "$semver_range" == "null" ]; then
+    echo "PRO TIP: Specify a node version in package.json"
+    semver_range=""
+  elif [ "$semver_range" == "*" ]; then
+    echo "PRO TIP: Avoid using semver ranges like '*' in engines.node"
+  elif [ ${semver_range:0:1} == ">" ]; then
+    echo "PRO TIP: Avoid using semver ranges starting with '>' in engines.node"
+  fi
 fi
 
 # Resolve node version using semver.io
 node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
+
+# Output info about requested range and resolved node version
+if [ "$semver_range" == "" ]; then
+  status "Defaulting to latest stable node: $node_version"
+else
+  status "Requested node range:  $semver_range"
+  status "Resolved node version: $node_version"
+fi
 
 # Download node from Heroku's S3 mirror of nodejs.org/dist
 echo -n "-----> Downloading and installing node v$node_version..."
