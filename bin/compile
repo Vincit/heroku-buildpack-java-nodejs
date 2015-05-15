@@ -121,6 +121,7 @@ if [ -d $GLOBAL_CACHE_DIR ]; then
   rm -rf $BUILD_DIR/.npm
   ln -s $GLOBAL_CACHE_DIR/.npm $BUILD_DIR/.npm
 
+  echo "-----> Symlinking global bower cache"
   mkdir -p $GLOBAL_CACHE_DIR/.cache/bower
   mkdir -p $HOME/.cache
   rm -rf $HOME/.cache/bower
@@ -169,7 +170,7 @@ export MAVEN_OPTS="-Xmx1024m"
 
 # build app
 maven_profile="staging"
-if [ ! -z "$MAVEN_PROFILE" ]; then
+if [ -n "$MAVEN_PROFILE" ]; then
   maven_profile="$MAVEN_PROFILE"
 fi
 
