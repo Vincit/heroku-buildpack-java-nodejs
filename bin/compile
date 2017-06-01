@@ -138,6 +138,12 @@ rm -rf $BUILD_DIR/node-v$node_version-linux-x64
 chmod +x $BUILD_DIR/vendor/node/bin/*
 PATH=$PATH:$BUILD_DIR/vendor/node/bin
 
+# Add unsafe-perm to global npmrc
+mkdir -p $BUILD_DIR/vendor/node/etc
+cat << EOF >> $BUILD_DIR/vendor/node/etc/npmrc
+unsafe-perm = true
+EOF
+
 # symlink from global cache directory
 if [ -d $GLOBAL_CACHE_DIR ]; then
   echo "-----> Symlinking global npm cache"
