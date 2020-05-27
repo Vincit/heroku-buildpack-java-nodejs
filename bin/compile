@@ -257,7 +257,7 @@ status "executing $BUILDCMD"
 $BUILDCMD 2>&1 | sed -u 's/^/       /'
 
 mkdir -p ../target/dependency
-cp target/webapp-runner.jar ../target/dependency/webapp-runner.jar
+cp assembly/target/webapp-runner.jar ../target/dependency/webapp-runner.jar
 cd ..
 rm -rf webapp-runner
 
