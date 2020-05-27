@@ -234,7 +234,7 @@ if [ -d $GLOBAL_CACHE_DIR/webapp-runner ]; then
     cd $BUILD_DIR
     cp -r $GLOBAL_CACHE_DIR/webapp-runner .
 else
-    git clone https://github.com/Vincit/webapp-runner.git 2>&1 | sed -u 's/^/        /'
+    git clone https://github.com/heroku/webapp-runner.git 2>&1 | sed -u 's/^/        /'
 
     if [ -d $GLOBAL_CACHE_DIR ]; then
         cp -r webapp-runner $GLOBAL_CACHE_DIR
