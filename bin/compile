@@ -13,7 +13,7 @@ BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
-GLOBAL_CACHE_DIR=/global_cache
+GLOBAL_CACHE_DIR=/global_cache/test_new_java_nodejs
 
 # set up used webapp
 WEBAPP_RUNNER_VERSION=${WEBAPP_RUNNER_VERSION:-Vincit}
