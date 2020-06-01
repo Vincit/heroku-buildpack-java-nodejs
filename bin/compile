@@ -15,6 +15,28 @@ CACHE_DIR=$2
 ENV_DIR=$3
 GLOBAL_CACHE_DIR=/global_cache
 
+# set up used webapp
+WEBAPP_RUNNER_VERSION=${WEBAPP_RUNNER_VERSION:-Vincit}
+
+case $WEBAPP_RUNNER_VERSION in
+  Vincit)
+    echo "-----> Use Vincit's webapp_runner"
+    WEBAPP_TARGET_JAR="target/webapp-runner.jar"
+    WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
+    ;;
+  heroku)
+    echo "-----> Use heroku's webapp_runner"
+    WEBAPP_TARGET_JAR="assembly/target/webapp-runner.jar"
+    WEBAPP_GIT_URL="https://github.com/heroku/webapp-runner.git"
+    ;;
+  *)
+    echo "-----> Unknown webapp_runner version: ${WEBAPP_RUNNER_VERSION}"
+    echo "-----> Using Vincit's version instead"
+    WEBAPP_TARGET_JAR="target/webapp-runner.jar"
+    WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
+    ;;
+esac
+
 LOGGER_FLAGS=""
 
 export_env_dir $ENV_DIR
@@ -234,7 +256,7 @@ if [ -d $GLOBAL_CACHE_DIR/webapp-runner ]; then
     cd $BUILD_DIR
     cp -r $GLOBAL_CACHE_DIR/webapp-runner .
 else
-    git clone https://github.com/heroku/webapp-runner.git 2>&1 | sed -u 's/^/        /'
+    git clone "${WEBAPP_GIT_URL}" 2>&1 | sed -u 's/^/        /'
 
     if [ -d $GLOBAL_CACHE_DIR ]; then
         cp -r webapp-runner $GLOBAL_CACHE_DIR
@@ -257,7 +279,7 @@ status "executing $BUILDCMD"
 $BUILDCMD 2>&1 | sed -u 's/^/       /'
 
 mkdir -p ../target/dependency
-cp assembly/target/webapp-runner.jar ../target/dependency/webapp-runner.jar
+cp "${WEBAPP_TARGET_JAR}" ../target/dependency/webapp-runner.jar
 cd ..
 rm -rf webapp-runner
 
