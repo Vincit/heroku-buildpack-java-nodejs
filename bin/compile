@@ -276,10 +276,10 @@ done
 
 if [ ! -d $GLOBAL_CACHE_DIR ]; then
   echo "-----> Caching npm cache directory for future builds"
-  mkdir -p $CACHE_DIR/.npm && rsync -a --delete $BUILD_DIR/.npm/ $CACHE_DIR/.npm/
+  mkdir -p $CACHE_DIR/.npm && [ -d "$BUILD_DIR/.npm/" ] && rsync -a --delete $BUILD_DIR/.npm/ $CACHE_DIR/.npm/
 
   echo "-----> Caching bower cache directory for future builds"
-  mkdir -p $CACHE_DIR/.cache/bower && rsync -a --delete $HOME/.cache/bower/ $CACHE_DIR/.cache/bower/
+  mkdir -p $CACHE_DIR/.cache/bower && [ -d "$HOME/.cache/bower/" ] && rsync -a --delete $HOME/.cache/bower/ $CACHE_DIR/.cache/bower/
 fi
 
 echo "-----> Cleaning up cache directories"
