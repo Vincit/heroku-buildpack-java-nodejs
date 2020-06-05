@@ -13,7 +13,7 @@ BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
-GLOBAL_CACHE_DIR=/global_cache/test_new_java_nodejs
+GLOBAL_CACHE_DIR=/global_cache
 
 # set up used webapp
 WEBAPP_RUNNER_VERSION=${WEBAPP_RUNNER_VERSION:-Vincit}
@@ -23,7 +23,7 @@ case $WEBAPP_RUNNER_VERSION in
     echo "-----> Use Vincit's webapp-runner"
     WEBAPP_TARGET_JAR="target/webapp-runner.jar"
     WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
-    WEBAPP_CACHE_DIR="webapp-runner"
+    WEBAPP_CACHE_DIR="webapp-runner-vincit"
     ;;
   heroku)
     echo "-----> Use heroku's webapp-runner"
@@ -36,7 +36,7 @@ case $WEBAPP_RUNNER_VERSION in
     echo "-----> Using Vincit's version instead"
     WEBAPP_TARGET_JAR="target/webapp-runner.jar"
     WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
-    WEBAPP_CACHE_DIR="webapp-runner"
+    WEBAPP_CACHE_DIR="webapp-runner-vincit"
     ;;
 esac
 
