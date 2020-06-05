@@ -15,6 +15,31 @@ CACHE_DIR=$2
 ENV_DIR=$3
 GLOBAL_CACHE_DIR=/global_cache
 
+# set up used webapp
+WEBAPP_RUNNER_VERSION=${WEBAPP_RUNNER_VERSION:-Vincit}
+
+case $WEBAPP_RUNNER_VERSION in
+  Vincit)
+    echo "-----> Use Vincit's webapp-runner"
+    WEBAPP_TARGET_JAR="target/webapp-runner.jar"
+    WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
+    WEBAPP_CACHE_DIR="webapp-runner-vincit"
+    ;;
+  heroku)
+    echo "-----> Use heroku's webapp-runner"
+    WEBAPP_TARGET_JAR="assembly/target/webapp-runner.jar"
+    WEBAPP_GIT_URL="https://github.com/heroku/webapp-runner.git"
+    WEBAPP_CACHE_DIR="webapp-runner-heroku"
+    ;;
+  *)
+    echo "-----> Unknown webapp-runner version: ${WEBAPP_RUNNER_VERSION}"
+    echo "-----> Using Vincit's version instead"
+    WEBAPP_TARGET_JAR="target/webapp-runner.jar"
+    WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
+    WEBAPP_CACHE_DIR="webapp-runner-vincit"
+    ;;
+esac
+
 LOGGER_FLAGS=""
 
 export_env_dir $ENV_DIR
@@ -228,23 +253,23 @@ if [ "${PIPESTATUS[*]}" != "0 0" ]; then
 fi
 
 # download webapp-runner
-if [ -d $GLOBAL_CACHE_DIR/webapp-runner ]; then
-    cd $GLOBAL_CACHE_DIR/webapp-runner
+if [ -d $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR ]; then
+    cd $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR
     git pull --ff-only 2>&1 >/dev/null
     cd $BUILD_DIR
-    cp -r $GLOBAL_CACHE_DIR/webapp-runner .
+    cp -r $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR .
 else
-    git clone https://github.com/Vincit/webapp-runner.git 2>&1 | sed -u 's/^/        /'
+    git clone "${WEBAPP_GIT_URL}" "$WEBAPP_CACHE_DIR" 2>&1 | sed -u 's/^/        /'
 
     if [ -d $GLOBAL_CACHE_DIR ]; then
-        cp -r webapp-runner $GLOBAL_CACHE_DIR
+        cp -r $WEBAPP_CACHE_DIR $GLOBAL_CACHE_DIR
     fi
 fi
 
-cd webapp-runner
+cd $WEBAPP_CACHE_DIR
 
 BUILDCMD="$CACHE_DIR/.maven/bin/mvn -B"
-BUILDCMD="$BUILDCMD -Duser.home=$BUILD_DIR/webapp-runner"
+BUILDCMD="$BUILDCMD -Duser.home=$BUILD_DIR/$WEBAPP_CACHE_DIR"
 BUILDCMD="$BUILDCMD -Dmaven.repo.local=$CACHE_DIR/.m2/repository"
 BUILDCMD="$BUILDCMD -q"
 BUILDCMD="$BUILDCMD $MAVEN_SETTINGS_OPT"
@@ -257,9 +282,9 @@ status "executing $BUILDCMD"
 $BUILDCMD 2>&1 | sed -u 's/^/       /'
 
 mkdir -p ../target/dependency
-cp target/webapp-runner.jar ../target/dependency/webapp-runner.jar
+cp "${WEBAPP_TARGET_JAR}" ../target/dependency/webapp-runner.jar
 cd ..
-rm -rf webapp-runner
+rm -rf $WEBAPP_CACHE_DIR
 
 # finalize cache
 if [ "false" == $KEEP_M2_CACHE ]; then
@@ -276,10 +301,10 @@ done
 
 if [ ! -d $GLOBAL_CACHE_DIR ]; then
   echo "-----> Caching npm cache directory for future builds"
-  mkdir -p $CACHE_DIR/.npm && rsync -a --delete $BUILD_DIR/.npm/ $CACHE_DIR/.npm/
+  mkdir -p $CACHE_DIR/.npm && [ -d "$BUILD_DIR/.npm/" ] && rsync -a --delete $BUILD_DIR/.npm/ $CACHE_DIR/.npm/
 
   echo "-----> Caching bower cache directory for future builds"
-  mkdir -p $CACHE_DIR/.cache/bower && rsync -a --delete $HOME/.cache/bower/ $CACHE_DIR/.cache/bower/
+  mkdir -p $CACHE_DIR/.cache/bower && [ -d "$HOME/.cache/bower/" ] && rsync -a --delete $HOME/.cache/bower/ $CACHE_DIR/.cache/bower/
 fi
 
 echo "-----> Cleaning up cache directories"

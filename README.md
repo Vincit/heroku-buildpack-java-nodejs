@@ -1,25 +1,40 @@
-Heroku buildpack: Java
-=========================
+# Heroku buildpack: Java
 
 This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpack) for Java apps.
 It uses Maven 3.2.5 to build your application and OpenJDK 8u20 to run it (by default).
 
 This fork also installs node.js and npm and uses webapp-runner to run the .war without requiring a bundled tomcat in Dokku.
 
+Two webapp-runner versions are supported:
+
+- [Vincit](https://github.com/Vincit/webapp-runner.git)'s fork that uses Tomcat 7.0.
+- [heroku](https://github.com/heroku/webapp-runner.git)'s official version that currently uses Tomcat 8.5. **Note!** Heroku's version does not support `--force-https` option.
+
+By default, Vincit's version of webapp-runner is being used, and the Heroku's version can be selected by defining environment variable `WEBAPP_RUNNER_VERSION=heroku`.
+
+E.g.
+
+```
+$ ssh dokku@dokku.dmz.vincit.fi config:set <app name> WEBAPP_RUNNER_VERSION=heroku
+
+# Set explicitly Vincit's version of webapp-runner to be used
+$ ssh dokku@dokku.dmz.vincit.fi config:set <app name> WEBAPP_RUNNER_VERSION=Vincit
+```
+
 ## How it works
 
-The buildpack will detect your app as Java if it has a `pom.xml` file in its root directory.  It will use Maven to execute the build defined by your `pom.xml` and download your dependencies. The `.m2` folder (local maven repository) will be cached between builds for faster dependency resolution. However neither the mvn executable or the .m2 folder will be available in your slug at runtime.
+The buildpack will detect your app as Java if it has a `pom.xml` file in its root directory. It will use Maven to execute the build defined by your `pom.xml` and download your dependencies. The `.m2` folder (local maven repository) will be cached between builds for faster dependency resolution. However neither the mvn executable or the .m2 folder will be available in your slug at runtime.
 
 ## Documentation
 
 For more information about using Java and buildpacks on Heroku, see these Dev Center articles:
 
-*  [Heroku Java Support](https://devcenter.heroku.com/articles/java-support)
-*  [Introduction to Heroku for Java Developers](https://devcenter.heroku.com/articles/intro-for-java-developers)
-*  [Deploying Tomcat-based Java Web Applications with Webapp Runner](https://devcenter.heroku.com/articles/java-webapp-runner)
-*  [Deploy a Java Web Application that launches with Jetty Runner](https://devcenter.heroku.com/articles/deploy-a-java-web-application-that-launches-with-jetty-runner)
-*  [Using a Custom Maven Settings File](https://devcenter.heroku.com/articles/using-a-custom-maven-settings-xml)
-*  [Using Grunt with Java and Maven to Automate JavaScript Tasks](https://devcenter.heroku.com/articles/using-grunt-with-java-and-maven-to-automate-javascript-tasks)
+- [Heroku Java Support](https://devcenter.heroku.com/articles/java-support)
+- [Introduction to Heroku for Java Developers](https://devcenter.heroku.com/articles/intro-for-java-developers)
+- [Deploying Tomcat-based Java Web Applications with Webapp Runner](https://devcenter.heroku.com/articles/java-webapp-runner)
+- [Deploy a Java Web Application that launches with Jetty Runner](https://devcenter.heroku.com/articles/deploy-a-java-web-application-that-launches-with-jetty-runner)
+- [Using a Custom Maven Settings File](https://devcenter.heroku.com/articles/using-a-custom-maven-settings-xml)
+- [Using Grunt with Java and Maven to Automate JavaScript Tasks](https://devcenter.heroku.com/articles/using-grunt-with-java-and-maven-to-automate-javascript-tasks)
 
 ## Configuration
 
@@ -61,8 +76,8 @@ versions of Maven by submitting a pull request against `vendor/maven/sources.txt
 
 There are three config variables that can be used to customize the Maven execution:
 
-+ `MAVEN_CUSTOM_GOALS`: set to `clean install` by default
-+ `MAVEN_CUSTOM_OPTS`: set to `-DskipTests=true` by default
+- `MAVEN_CUSTOM_GOALS`: set to `clean install` by default
+- `MAVEN_CUSTOM_OPTS`: set to `-DskipTests=true` by default
 
 These variables can be set like this:
 
@@ -74,7 +89,6 @@ $ heroku config:set MAVEN_CUSTOM_OPTS="--update-snapshots -DskipTests=true"
 Other options are available for [defining custom a `settings.xml` file](https://devcenter.heroku.com/articles/using-a-custom-maven-settings-xml).
 
 ## Hacking
-
 
 To make changes to this buildpack, fork it on Github. Push up changes to your fork, then create a new Heroku app to test it, or configure an existing app to use your buildpack:
 
@@ -107,7 +121,6 @@ and then:
 
 and you'll see the `.m2` and `.maven` directories are now present in your slug.
 
-License
--------
+## License
 
 Licensed under the MIT License. See LICENSE file.
