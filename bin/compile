@@ -260,6 +260,7 @@ if [ -d $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR ]; then
     cd $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR
 
     if [ "$(git rev-parse --abbrev-ref HEAD)" != "$WEBAPP_GIT_BRANCH" ]; then
+        git fetch origin "$WEBAPP_GIT_BRANCH"
         git checkout "$WEBAPP_GIT_BRANCH" --
     fi
 
