@@ -23,12 +23,14 @@ case $WEBAPP_RUNNER_VERSION in
     echo "-----> Use Vincit's webapp-runner"
     WEBAPP_TARGET_JAR="target/webapp-runner.jar"
     WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
+    WEBAPP_GIT_BRANCH="master"
     WEBAPP_CACHE_DIR="webapp-runner-vincit"
     ;;
   heroku)
     echo "-----> Use heroku's webapp-runner"
     WEBAPP_TARGET_JAR="assembly/target/webapp-runner.jar"
     WEBAPP_GIT_URL="https://github.com/heroku/webapp-runner.git"
+    WEBAPP_GIT_BRANCH="main"
     WEBAPP_CACHE_DIR="webapp-runner-heroku"
     ;;
   *)
@@ -36,6 +38,7 @@ case $WEBAPP_RUNNER_VERSION in
     echo "-----> Using Vincit's version instead"
     WEBAPP_TARGET_JAR="target/webapp-runner.jar"
     WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
+    WEBAPP_GIT_BRANCH="master"
     WEBAPP_CACHE_DIR="webapp-runner-vincit"
     ;;
 esac
@@ -148,8 +151,8 @@ fi
 # Download node from Heroku's S3 mirror of nodejs.org/dist
 if [ ! -f "$CACHE_DIR/node-v$node_version-linux-x64.tar.gz" ]; then
   status "Downloading and installing node (first run)"
-  node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
-  curl $node_url -s -o - | tee $CACHE_DIR/node-v$node_version-linux-x64.tar.gz | tar xzf - -C $BUILD_DIR
+  node_url="https://nodejs.org/dist/v$node_version/node-v$node_version-linux-x64.tar.gz"
+  curl $node_url -s -k -o - | tee $CACHE_DIR/node-v$node_version-linux-x64.tar.gz | tar xzf - -C $BUILD_DIR
 else
   status "Installing node"
   node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
@@ -255,11 +258,17 @@ fi
 # download webapp-runner
 if [ -d $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR ]; then
     cd $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR
+
+    if [ "$(git rev-parse --abbrev-ref HEAD)" != "$WEBAPP_GIT_BRANCH" ]; then
+        git fetch origin "$WEBAPP_GIT_BRANCH"
+        git checkout "$WEBAPP_GIT_BRANCH" --
+    fi
+
     git pull --ff-only 2>&1 >/dev/null
     cd $BUILD_DIR
     cp -r $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR .
 else
-    git clone "${WEBAPP_GIT_URL}" "$WEBAPP_CACHE_DIR" 2>&1 | sed -u 's/^/        /'
+    git clone --branch "$WEBAPP_GIT_BRANCH" --single-branch "${WEBAPP_GIT_URL}" "$WEBAPP_CACHE_DIR" 2>&1 | sed -u 's/^/        /'
 
     if [ -d $GLOBAL_CACHE_DIR ]; then
         cp -r $WEBAPP_CACHE_DIR $GLOBAL_CACHE_DIR
