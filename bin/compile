@@ -259,8 +259,8 @@ fi
 if [ -d $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR ]; then
     cd $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR
 
-    if [ "$(git branch --show-current)" != "$WEBAPP_GIT_BRANCH" ]; then
-        git switch "$WEBAPP_GIT_BRANCH"
+    if [ "$(git rev-parse --abbrev-ref HEAD)" != "$WEBAPP_GIT_BRANCH" ]; then
+        git checkout "$WEBAPP_GIT_BRANCH" --
     fi
 
     git pull --ff-only 2>&1 >/dev/null
