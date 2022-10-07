@@ -121,41 +121,33 @@ if [ ! -f $BUILD_DIR/$NPM_DIR/package.json ]; then
   echo 'PRO TIP: If you have a package.json in your project, you can define its location in .env file. Just add the line:'
   echo 'export NPM_DIR=subdir'
   echo 'where subdir is a relative path to the directory where package.json is.'
-  semver_range=""
+  status "Could not find package.json at $NPM_DIR/package.json. Unable to determine Node.js version to install. Exiting."
+  exit 1
 else
   # Look in package.json's engines.node field for a semver range
-  semver_range=$(cat $BUILD_DIR/$NPM_DIR/package.json | $BIN_DIR/../vendor/jq -r .engines.node)
-
-  # Recommend using semver ranges in a safe manner
-  if [ "$semver_range" == "null" ]; then
-    echo "PRO TIP: Specify a node version in package.json"
-    semver_range=""
-  elif [ "$semver_range" == "*" ]; then
-    echo "PRO TIP: Avoid using semver ranges like '*' in engines.node"
-  elif [ ${semver_range:0:1} == ">" ]; then
-    echo "PRO TIP: Avoid using semver ranges starting with '>' in engines.node"
-  fi
+  node_version=$(cat $BUILD_DIR/$NPM_DIR/package.json | $BIN_DIR/../vendor/jq -r .engines.node)
 fi
 
-# Resolve node version using semver.io
-node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
-
-# Output info about requested range and resolved node version
-if [ "$semver_range" == "" ]; then
-  status "Defaulting to latest stable node: $node_version"
+# Output info about requested node version
+if [ "$node_version" == "" ]; then
+  status "Sorry, this buildpack currently requires an exact Node.js version to be defined."
+  status "Requested Node.js version is missing in $NPM_DIR/package.json. Please define it at path .engines.node."
+  exit 1
+elif [[ $node_version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  status "Requested Node.js version: $node_version"
 else
-  status "Requested node range:  $semver_range"
-  status "Resolved node version: $node_version"
+  status "Sorry, this buildpack currently requires an exact Node.js version to be defined."
+  status "Requested Node.js version in $NPM_DIR/package.json was: $node_version. Please change it to an exact version X.Y.Z."
+  exit 1
 fi
 
-# Download node from Heroku's S3 mirror of nodejs.org/dist
+# Download node from nodejs.org/dist
 if [ ! -f "$CACHE_DIR/node-v$node_version-linux-x64.tar.gz" ]; then
   status "Downloading and installing node (first run)"
   node_url="https://nodejs.org/dist/v$node_version/node-v$node_version-linux-x64.tar.gz"
   curl $node_url -s -k -o - | tee $CACHE_DIR/node-v$node_version-linux-x64.tar.gz | tar xzf - -C $BUILD_DIR
 else
   status "Installing node"
-  node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
   tar xzf $CACHE_DIR/node-v$node_version-linux-x64.tar.gz -C $BUILD_DIR
 fi
 
