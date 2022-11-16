@@ -23,23 +23,22 @@ case $WEBAPP_RUNNER_VERSION in
     echo "-----> Use Vincit's webapp-runner"
     WEBAPP_TARGET_JAR="target/webapp-runner.jar"
     WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
-    WEBAPP_GIT_BRANCH="master"
+    WEBAPP_GIT_BRANCH=${WEBAPP_GIT_BRANCH:-master}
     WEBAPP_CACHE_DIR="webapp-runner-vincit"
     ;;
   heroku)
     echo "-----> Use heroku's webapp-runner"
     WEBAPP_TARGET_JAR="assembly/target/webapp-runner.jar"
     WEBAPP_GIT_URL="https://github.com/heroku/webapp-runner.git"
-    WEBAPP_GIT_BRANCH="main"
+    WEBAPP_GIT_BRANCH=${WEBAPP_GIT_BRANCH:-main}
     WEBAPP_CACHE_DIR="webapp-runner-heroku"
     ;;
   *)
     echo "-----> Unknown webapp-runner version: ${WEBAPP_RUNNER_VERSION}"
-    echo "-----> Using Vincit's version instead"
     WEBAPP_TARGET_JAR="target/webapp-runner.jar"
-    WEBAPP_GIT_URL="https://github.com/Vincit/webapp-runner.git"
-    WEBAPP_GIT_BRANCH="master"
-    WEBAPP_CACHE_DIR="webapp-runner-vincit"
+    WEBAPP_GIT_URL="${WEBAPP_GIT_URL:-https://github.com/Vincit/webapp-runner.git}"
+    WEBAPP_GIT_BRANCH=${WEBAPP_GIT_BRANCH:-master}
+    WEBAPP_CACHE_DIR="webapp-runner-${WEBAPP_RUNNER_VERSION:-custom}"
     ;;
 esac
 
@@ -256,7 +255,8 @@ if [ -d $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR ]; then
         git checkout "$WEBAPP_GIT_BRANCH" --
     fi
 
-    git pull --ff-only 2>&1 >/dev/null
+    git remote update 2>&1 >/dev/null
+    git reset --hard "origin/${WEBAPP_GIT_BRANCH}"
     cd $BUILD_DIR
     cp -r $GLOBAL_CACHE_DIR/$WEBAPP_CACHE_DIR .
 else
